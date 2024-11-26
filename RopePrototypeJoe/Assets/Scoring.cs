@@ -2,64 +2,66 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Scoring : MonoBehaviour
 {
-
-    Collectables contact;
     public TextMeshProUGUI Score;
-    float x;
+    float score;
 
     public List<ImageGenerator> scoringConditions;
-    // Start is called before the first frame update
+    int itemsCount=0;
+
     void Start()
+    {
+        score = 0;
+        LevelGenerator();
+    }
+
+    void Update()
     {
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        Score.text = "Score: " + x;
-        if (Input.GetMouseButtonDown(0))
-        {
-            for (int i = 0; i < scoringConditions.Count; i++)
-            {
-                print(scoringConditions[i].type);
-            }
-        }
-    }
-
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        contact = collision.GetComponent<Collectables>();
-        if (listChecker())
+        Collectables contact = collision.GetComponent<Collectables>();
+        int check = listChecker(contact);
+        if (check != -1)
         {
             //i handled it wrong
-            x++;
-        }else { x--; print("Dont submit the incorrect shapes"); } 
+            score++;itemsCount--;
+            scoringConditions[check].highLight();
+            scoringConditions[check].type = -1;
+            if(itemsCount == 0)LevelGenerator();
+        }
+        else 
+        {
+            score--; 
+            print("Dont submit the incorrect shapes"); 
+        } 
         Destroy(collision.gameObject);
-        //how can i access specific varaibles of the collider object
+        Score.text = "Score: " + score;
     }
 
-    bool listChecker()
+    int listChecker(Collectables contact)
     {
-        int checker = 0;
         for (int i = 0; i < scoringConditions.Count; i++)
         {
-            //always stops at the first shape and doesnt account for any in the list
-            if (contact.type == scoringConditions[i].type)
-            {
-                //hopefully add something that shows the incrementation.
-                checker++;
-            }
-            else
-            {
-
-            }
-            
+            if (contact.type == scoringConditions[i].type)return i;
         }
-        if (checker > 0) { return true; } else { return false; }
+        return -1;
     }
+    
+    void LevelGenerator()
+    {
+        print("new Level");
+        for (int i=0;i< LevelController.scoringConditions.Count;i++)
+        {
+            LevelController.scoringConditions[i].SetImages();
+        }
+        scoringConditions = LevelController.scoringConditions; 
+        itemsCount = scoringConditions.Count;
+        print(itemsCount);
+    }
+
 }

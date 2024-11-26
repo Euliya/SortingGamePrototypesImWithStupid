@@ -6,15 +6,19 @@ using UnityEngine.UI;
 
 public class ImageGenerator : MonoBehaviour
 {
-    public List<Sprite> Objects;
-    public Image goalPrereq;
+    Image image;
+    List<Sprite> objects;
 
     //keep it a float for now but change it to text later so I can read it
     public int type;
     //red,green,blue
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        objects = LevelController.Objects();
+        LevelController.scoringConditions.Add(this);
+
+        image= GetComponent<Image>();
         SetImages();
     }
 
@@ -24,10 +28,15 @@ public class ImageGenerator : MonoBehaviour
 
     }
     //doing the same thing with collectables maybe use a derivitive class design structure later
-    void SetImages()
+    public void SetImages()
     {
-        int index = Random.Range(0, Objects.Count);
-        goalPrereq.sprite = Objects[index];
+        int index = Random.Range(0, objects.Count);
+        image.sprite = objects[index];
         type = index;
+        image.color= Color.white;
+    }
+    public void highLight()
+    {
+        image.color = Color.red;
     }
 }
